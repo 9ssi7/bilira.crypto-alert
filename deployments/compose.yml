@@ -1,0 +1,80 @@
+name: crypto-alerts
+services:
+  app:
+    build: ../apps/backend
+    ports:
+      - "4000:4000"
+    environment:
+      - PORT=${PORT}
+      - NODE_ENV=${NODE_ENV}
+      - DATABASE_URL=${DATABASE_URL}
+      - AWS_REGION=${AWS_REGION}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - PRICE_UPDATE_QUEUE_URL=${PRICE_UPDATE_QUEUE_URL}
+      - JAEGER_ENDPOINT=${JAEGER_ENDPOINT}
+      - NOTIFICATION_QUEUE_URL=${NOTIFICATION_QUEUE_URL}
+    depends_on:
+      - db
+      - redis
+      - prometheus
+      - grafana
+      - jaeger
+
+  db:
+    image: postgres:14-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=crypto_alerts
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "16686:16686"  # UI
+      - "4317:4317"    # OTLP gRPC
+      - "4318:4318"    # OTLP HTTP
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+      - TZ=UTC
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+
+  price-updater:
+    build: 
+      context: ../apps/history-generator
+      dockerfile: Dockerfile
+    environment:
+      - AWS_REGION=${AWS_REGION}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - PRICE_UPDATE_QUEUE_URL=${PRICE_UPDATE_QUEUE_URL}
+    depends_on:
+      - app
+
+volumes:
+  postgres_data:
+  grafana_data:

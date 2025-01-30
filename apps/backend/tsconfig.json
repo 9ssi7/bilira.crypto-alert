@@ -1,0 +1,22 @@
+{
+	"ts-node": {
+		"files": true
+	},
+	"include": ["./**/*.ts", "./global.d.ts"],
+	"compilerOptions": {
+		"experimentalDecorators": true,
+		"target": "ES2020",
+		"module": "CommonJS",
+		"outDir": "./dist",
+		"baseUrl": ".",
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+		"strict": true,
+		"skipLibCheck": true,
+		"removeComments": true,
+		"strictPropertyInitialization": false,
+		"paths": {
+			"@/*": ["./*"]
+		}
+	}
+}
