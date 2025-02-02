@@ -16,6 +16,7 @@ import { TelemetryManager } from '../infrastructure/telemetry/telemetry.manager'
 import { createCoinService } from '../core/services/coin.service';
 import { createPostgresCoinPriceHistoryRepo } from '../infrastructure/repositories/postgres-coin-price-history.repo';
 import { trace } from '@opentelemetry/api';
+import { registerSecurity } from '../api/extensions/security.extension';
 
 type Server = { 
   server: FastifyInstance; 
@@ -29,7 +30,8 @@ async function buildServer(): Promise<Server> {
   await telemetryManager.start();
 
   const server = Fastify({
-    logger: true
+    logger: true,
+    trustProxy: true
   });
   const databaseManager = new DatabaseManager();
   const dbPool = databaseManager.getPool();
@@ -56,6 +58,7 @@ async function buildServer(): Promise<Server> {
   );
   const coinService = createCoinService(coinRepository, coinPriceHistoryRepository);
   
+  await registerSecurity(server);
   await alertRoutes(server, alertService);
   await coinRoutes(server, coinService);
 
