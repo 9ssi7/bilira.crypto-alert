@@ -15,10 +15,10 @@ jobs:
           
       - name: "install deps"
         run: npm i
-        working-directory: ./apps/backend
+        working-directory: ./apps/history-generator
   
       - name: 🔎 Type check
-        working-directory: ./apps/backend
+        working-directory: ./apps/history-generator
         run: npm run build
 
       - name: default deploy
@@ -28,4 +28,4 @@ jobs:
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws_region: ${{ secrets.AWS_REGION }}
           function_name: gorush
-          source: dist/index.js
+          source: ./apps/history-generator/dist/index.js
