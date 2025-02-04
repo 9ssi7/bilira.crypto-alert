@@ -1,21 +1,17 @@
 import { SQS } from 'aws-sdk';
-import dotenv from 'dotenv';
 import crypto from 'crypto';
 
-dotenv.config();
-
-const sqs = new SQS({
-  region: process.env.AWS_REGION || 'eu-north-1',
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || ''
-  }
-});
-
-const QUEUE_URL = process.env.PRICE_UPDATE_QUEUE_URL || '';
-const COINS = ['BTC', 'ETH', 'BNB', 'ADA', 'SOL', 'XRP', 'DOT', 'DOGE', 'AVAX', 'MATIC'];
-
-async function publishPriceUpdates() {
+export async function handler(event: any, context: any) {
+  console.log('Starting history generator');
+  const sqs = new SQS({
+    region: process.env.AWS_REGION || 'eu-north-1',
+    credentials: {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || ''
+    }
+  });
+  const QUEUE_URL = process.env.PRICE_UPDATE_QUEUE_URL || '';
+  const COINS = ['BTC', 'ETH', 'BNB', 'ADA', 'SOL', 'XRP', 'DOT', 'DOGE', 'AVAX', 'MATIC'];
   try {
     for (const symbol of COINS) {
       let price: number;
@@ -58,6 +54,3 @@ async function publishPriceUpdates() {
     console.error('Error publishing price updates:', error);
   }
 }
-
-setInterval(publishPriceUpdates, 60000);
-publishPriceUpdates();
