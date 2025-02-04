@@ -20,5 +20,5 @@ jobs:
       - run: sam build --use-container
         working-directory: ./apps/history-generator
       
-      - run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name history-generator --resolve-s3
+      - run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name history-generator --resolve-s3 --capabilities CAPABILITY_IAM
         working-directory: ./apps/history-generator
