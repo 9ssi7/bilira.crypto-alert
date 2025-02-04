@@ -1,0 +1,45 @@
+name: 🧪 Check Buildable
+on: [push, pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  backend-app:
+    name: ʦ Build Backend App
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          
+      - name: "install deps"
+        run: npm i
+        working-directory: ./apps/backend
+
+      - name: 🔎 Type check
+        working-directory: ./apps/backend
+        run: npm run build
+
+
+  history-gen-app:
+    name: ʦ Build History Gen App
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          
+      - name: "install deps"
+        run: npm i
+        working-directory: ./apps/history-generator
+
+      - name: 🔎 Type check
+        working-directory: ./apps/history-generator
+        run: npm run build
