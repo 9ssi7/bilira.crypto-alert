@@ -20,5 +20,5 @@ jobs:
       - run: sam build --use-container
         working-directory: ./apps/history-generator
       
-      - run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset
+      - run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name history-generator
         working-directory: ./apps/history-generator
