@@ -3,22 +3,29 @@ on:
   release:
     types: [released]
 jobs:
-  deploy-lambda:
+  deploy:
+    name: deploy lambda function
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: aws-actions/setup-sam@v2
+        
+      - uses: actions/setup-node@v4
         with:
-          use-installer: true
-          token: ${{ secrets.GITHUB_TOKEN }}
-      - uses: aws-actions/configure-aws-credentials@v2
+          node-version: 20
+          
+      - name: "install deps"
+        run: npm i
+        working-directory: ./apps/backend
+  
+      - name: 🔎 Type check
+        working-directory: ./apps/backend
+        run: npm run build
+
+      - name: default deploy
+        uses: appleboy/lambda-action@v0.2.0
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-2
-      
-      - run: sam build --use-container
-        working-directory: ./apps/history-generator
-      
-      - run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name history-generator --resolve-s3 --capabilities CAPABILITY_IAM
-        working-directory: ./apps/history-generator
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_region: ${{ secrets.AWS_REGION }}
+          function_name: gorush
+          source: dist/index.js
