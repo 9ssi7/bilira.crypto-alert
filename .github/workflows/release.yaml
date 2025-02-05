@@ -52,7 +52,7 @@ jobs:
       run: npm run build
 
     - name: Generate deployment package
-      working-directory: ./apps/backend
+      working-directory: ./apps/backend/dist
       run: zip -r app.zip . -x '*.git*'
 
     - name: Deploy to EB
@@ -64,4 +64,4 @@ jobs:
         application_name: BiliraCryptoAlert
         environment_name: BiliraCryptoAlert-Env
         version_label: ${{ github.event.release.tag_name }}
-        deployment_package: ./apps/backend/app.zip
+        deployment_package: ./apps/backend/dist/app.zip
