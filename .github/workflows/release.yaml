@@ -61,7 +61,7 @@ jobs:
         aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         region: eu-north-1
-        application_name: BiliraCryptoAlert
-        environment_name: BiliraCryptoAlert-Env
+        application_name: bilira-crypto-app
+        environment_name: Bilira-crypto-app-env
         version_label: ${{ github.event.release.tag_name }}
         deployment_package: ./apps/backend/dist/app.zip
