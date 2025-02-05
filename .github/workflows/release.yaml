@@ -65,3 +65,4 @@ jobs:
         environment_name: Bilira-crypto-app-env
         version_label: ${{ github.event.release.tag_name }}
         deployment_package: ./apps/backend/dist/app.zip
+        use_existing_version_if_available: true
