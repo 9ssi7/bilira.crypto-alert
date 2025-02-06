@@ -54,3 +54,9 @@ export async function handler(event: any, context: any) {
     console.error('Error publishing price updates:', error);
   }
 }
+
+if (process.env.NODE_ENV !== 'production') {
+  setInterval(() => {
+    handler({}, {});
+  }, 60000); // every 1 minute
+}
