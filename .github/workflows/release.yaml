@@ -52,17 +52,17 @@ jobs:
       run: npm run build
 
     - name: Generate deployment package
-      working-directory: ./apps/backend/dist
+      working-directory: ./apps/backend
       run: zip -r app.zip . -x '*.git*'
 
     - name: Deploy to EB
       uses: einaregilsson/beanstalk-deploy@v22
       with:
-        aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws_access_key: ${{ secrets.AWS_BEANSTALK_ACCESS_KEY }}
+        aws_secret_key: ${{ secrets.AWS_BEANSTALK_ACCESS_SECRET }}
         region: ${{ secrets.AWS_BEANSTALK_REGION }}
         application_name: ${{ secrets.AWS_BEANSTALK_APP_NAME }}
         environment_name: ${{ secrets.AWS_BEANSTALK_ENV_NAME }}
         version_label: ${{ github.event.release.tag_name }}
-        deployment_package: ./apps/backend/dist/app.zip
+        deployment_package: ./apps/backend/app.zip
         use_existing_version_if_available: true
