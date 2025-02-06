@@ -11,7 +11,10 @@ const migrations = [
 
 export async function runMigrations(): Promise<void> {
   const pool = new Pool({
-    connectionString: process.env.DATABASE_URL
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+      rejectUnauthorized: false
+    }
   });
 
   try {
