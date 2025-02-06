@@ -26,63 +26,81 @@ type Server = {
 }
 
 async function buildServer(): Promise<Server> {
+  console.log('Building server...');
   const telemetryManager = new TelemetryManager();
   await telemetryManager.start();
+  console.log('Telemetry manager started');
 
   const server = Fastify({
     logger: true,
     trustProxy: true
   });
+  console.log('Fastify server created');
   const databaseManager = new DatabaseManager();
   const dbPool = databaseManager.getPool();
+  console.log('Database pool created');
   server.setErrorHandler(errorHandler)
   registerTracing(server);
+  console.log('Tracing registered');
   await registerSwagger(server);
-
+  console.log('Swagger registered');
   const alertRepository = createPostgresAlertRepo(dbPool, trace.getTracer('alert-repository'));
+  console.log('Alert repository created');
   const coinRepository = createPostgresCoinRepo(dbPool, trace.getTracer('coin-repository'));
+  console.log('Coin repository created');
   const coinPriceHistoryRepository = createPostgresCoinPriceHistoryRepo(dbPool, trace.getTracer('coin-price-history-repository'));
+  console.log('Coin price history repository created');
   
   const priceService = new CoinGeckoPriceService();
+  console.log('Price service created');
   const notificationService = new AWSSQSNotificationService();
+  console.log('Notification service created');
   const priceUpdateConsumer = new SQSPriceUpdateConsumer(
     coinRepository,
     coinPriceHistoryRepository,
     process.env.PRICE_UPDATE_QUEUE_URL || ''
   );
-  
+  console.log('Price update consumer created');
   const alertService = createAlertService(
     alertRepository,
     priceService,
     notificationService
   );
   const coinService = createCoinService(coinRepository, coinPriceHistoryRepository);
-  
+  console.log('Coin service created');
   await registerSecurity(server);
+  console.log('Security registered');
   await alertRoutes(server, alertService);
+  console.log('Alert routes registered');
   await coinRoutes(server, coinService);
-
+  console.log('Coin routes registered');  
   await priceUpdateConsumer.start();
+  console.log('Price update consumer started');
   return { server, priceUpdateConsumer, databaseManager, telemetryManager };
 }
 
 async function bootstrap(): Promise<void> {
   try {
-    await runMigrations();
     const { server, priceUpdateConsumer, databaseManager, telemetryManager } = await buildServer();
+    console.log('Running migrations');
+    await runMigrations();
+    console.log('Migrations run');  
     const port = parseInt(process.env.PORT || '4000');
-
+    console.log('Server created');  
     const shutdownManager = new ShutdownManager(
       server, 
       priceUpdateConsumer, 
       databaseManager,
       telemetryManager
     );
+    console.log('Shutdown manager created');
     shutdownManager.listen();
+    console.log('Shutdown manager listening');
     const address = await server.listen({ port, host: '0.0.0.0' });
     console.log(`Server listening at ${address} on port ${port}`);
   } catch (err) {
     console.error(err);
+    console.log('Error occurred');
     process.exit(1);
   }
 }
