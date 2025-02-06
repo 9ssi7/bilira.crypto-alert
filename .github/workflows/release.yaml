@@ -60,9 +60,9 @@ jobs:
       with:
         aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        region: eu-north-1
-        application_name: bilira-crypto-app
-        environment_name: Bilira-crypto-app-env
+        region: ${{ secrets.AWS_BEANSTALK_REGION }}
+        application_name: ${{ secrets.AWS_BEANSTALK_APP_NAME }}
+        environment_name: ${{ secrets.AWS_BEANSTALK_ENV_NAME }}
         version_label: ${{ github.event.release.tag_name }}
         deployment_package: ./apps/backend/dist/app.zip
         use_existing_version_if_available: true
