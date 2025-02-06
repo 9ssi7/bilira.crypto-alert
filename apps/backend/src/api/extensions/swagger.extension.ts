@@ -9,7 +9,7 @@ export async function registerSwagger(server: FastifyInstance) {
         title: "Crypto Price Alert API",
         version: "1.0.0",
       },
-      schemes: ["http", "https"],
+      schemes: process.env.NODE_ENV === 'production' ? ["http"] : ["http", "https"],
       consumes: ["application/json"],
       produces: ["application/json"],
     },
