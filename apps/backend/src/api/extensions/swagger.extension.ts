@@ -14,6 +14,7 @@ export async function registerSwagger(server: FastifyInstance) {
       produces: ["application/json"],
     },
   });
+  
   await server.register(fastifySwaggerUi, {
     routePrefix: "/docs",
     uiConfig: {
@@ -21,5 +22,12 @@ export async function registerSwagger(server: FastifyInstance) {
       deepLinking: false,
     },
     staticCSP: true,
+    transformStaticCSP: (header) => {
+      return header
+        .replace('script-src', `script-src 'self' 'unsafe-inline' 'unsafe-eval'`)
+        .replace('style-src', `style-src 'self' 'unsafe-inline'`)
+        .replace('img-src', `img-src 'self' data: https:`)
+        .replace('font-src', `font-src 'self' data: https:`);
+    }
   });
 }

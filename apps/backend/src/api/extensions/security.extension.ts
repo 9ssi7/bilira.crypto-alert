@@ -27,9 +27,17 @@ export async function registerSecurity(server: FastifyInstance) {
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
         styleSrc: ["'self'", "'unsafe-inline'"],
         imgSrc: ["'self'", 'data:', 'https:'],
+        fontSrc: ["'self'", 'data:', 'https:'],
+        connectSrc: ["'self'", 'https:'],
+        frameSrc: ["'self'", 'https:'],
+        objectSrc: ["'self'", 'https:'],
+        baseUri: ["'self'", 'https:'],
+        formAction: ["'self'", 'https:'],
+        frameAncestors: ["'self'", 'https:'],
+        
       },
     },
   });

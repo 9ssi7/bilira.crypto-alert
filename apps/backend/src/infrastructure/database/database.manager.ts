@@ -14,9 +14,9 @@ export class DatabaseManager {
         max: 20,
         idleTimeoutMillis: 30000,
         connectionTimeoutMillis: 2000,
-        ssl: {
+        ssl: process.env.NODE_ENV === 'production' ? {
           rejectUnauthorized: false
-        }
+        } : undefined
       });
       
       span.setAttribute('database.connected', true);
