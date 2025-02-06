@@ -3,7 +3,7 @@ import { Resource } from '@opentelemetry/resources';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { trace, SpanStatusCode } from '@opentelemetry/api';
-import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
+import { BatchSpanProcessor, NoopSpanProcessor } from '@opentelemetry/sdk-trace-base';
 
 export class TelemetryManager {
   private tracer = trace.getTracer('telemetry-manager');
@@ -11,22 +11,26 @@ export class TelemetryManager {
 
   constructor() {
     const span = this.tracer.startSpan('initialize-telemetry');
-    
+    const env = process.env.NODE_ENV || 'development';
     try {
-      const traceExporter = new OTLPTraceExporter({
-        url: process.env.OTEL_EXPORTER_OTLP_ENDPOINT,
-      });
+      const isDevelopment = env === 'development';
+      const spanProcessor = isDevelopment 
+        ? new BatchSpanProcessor(new OTLPTraceExporter({
+            url: process.env.OTEL_EXPORTER_OTLP_ENDPOINT,
+          }))
+        : new NoopSpanProcessor();
 
       this.sdk = new NodeSDK({
         resource: new Resource({
           [SemanticResourceAttributes.SERVICE_NAME]: 'crypto-alert-service',
           [SemanticResourceAttributes.SERVICE_VERSION]: '1.0.0',
-          [SemanticResourceAttributes.DEPLOYMENT_ENVIRONMENT]: process.env.NODE_ENV || 'development'
+          [SemanticResourceAttributes.DEPLOYMENT_ENVIRONMENT]: env
         }),
-        spanProcessor: new BatchSpanProcessor(traceExporter),
+        spanProcessor,
       });
 
       span.setAttribute('telemetry.initialized', true);
+      span.setAttribute('telemetry.environment', env);
     } catch (error) {
       span.setStatus({
         code: SpanStatusCode.ERROR,
